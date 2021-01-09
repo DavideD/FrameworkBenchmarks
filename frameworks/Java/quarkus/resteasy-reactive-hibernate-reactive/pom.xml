@@ -47,5 +47,15 @@
             <artifactId>compiler</artifactId>
             <version>0.9.6</version>
         </dependency>
+        <dependency>
+            <groupId>io.smallrye</groupId>
+            <artifactId>smallrye-context-propagation</artifactId>
+            <version>1.0.21-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.smallrye</groupId>
+            <artifactId>smallrye-context-propagation-api</artifactId>
+            <version>1.0.21-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
