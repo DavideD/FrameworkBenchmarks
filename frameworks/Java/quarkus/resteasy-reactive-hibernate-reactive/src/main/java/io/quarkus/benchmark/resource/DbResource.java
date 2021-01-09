@@ -38,6 +38,12 @@ public class DbResource {
         return worldRepository.inSession(session -> randomWorldForRead(session, parseQueryCount(queries)));
     }
 
+    @GET
+    @Path("createData")
+    public Uni<Void> createData() {
+        return worldRepository.createData();
+    }
+
     private Uni<Collection<World>> randomWorldForRead(Mutiny.Session session, int count) {
         Set<Integer> ids = new HashSet<>(count);
         int counter = 0;
