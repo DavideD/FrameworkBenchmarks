@@ -22,6 +22,7 @@
         <module>resteasy-reactive-pgclient</module>
         <module>resteasy-reactive-hibernate</module>
         <module>resteasy-reactive-hibernate-reactive</module>
+        <module>resteasy-reactive-hibernate-reactive-stage</module>
     </modules>
 
     <dependencyManagement>
