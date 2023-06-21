@@ -12,13 +12,15 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import java.util.Comparator;
 
+import static java.util.Comparator.comparing;
+
 @Path("/fortunes")
 public class FortuneResource  {
 
     @Inject
     FortuneRepository repository;
 
-    private static final Comparator<Fortune> fortuneComparator = Comparator.comparing(fortune -> fortune.getMessage());
+    private static final Comparator<Fortune> fortuneComparator = comparing( Fortune::getMessage );
 
     @Produces("text/html; charset=UTF-8")
     @GET

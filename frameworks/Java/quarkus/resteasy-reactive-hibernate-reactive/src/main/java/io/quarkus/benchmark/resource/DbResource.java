@@ -55,20 +55,20 @@ public class DbResource {
 
             session.setFlushMode(FlushMode.MANUAL);
 
-            Uni<List<World>> worlds = randomWorldsForWrite(session, parseQueryCount(queries));
-            return worlds.flatMap(worldsCollection -> {
-                final LocalRandom localRandom = Randomizer.current();
-                worldsCollection.forEach( w -> {
-                    //Read the one field, as required by the following rule:
-                    // # vi. At least the randomNumber field must be read from the database result set.
-                    final int previousRead = w.getRandomNumber();
-                    //Update it, but make sure to exclude the current number as Hibernate optimisations would have us "fail"
-                    //the verification:
-                    w.setRandomNumber(localRandom.getNextRandomExcluding(previousRead));
-                } );
+            return randomWorldsForWrite(session, parseQueryCount(queries))
+                    .flatMap(worldsCollection -> {
+                        final LocalRandom localRandom = Randomizer.current();
+                        worldsCollection.forEach( w -> {
+                            //Read the one field, as required by the following rule:
+                            // # vi. At least the randomNumber field must be read from the database result set.
+                            final int previousRead = w.getRandomNumber();
+                            //Update it, but make sure to exclude the current number as Hibernate optimisations would have us "fail"
+                            //the verification:
+                            w.setRandomNumber(localRandom.getNextRandomExcluding(previousRead));
+                        } );
 
-                return worldRepository.update(session, worldsCollection);
-            });
+                        return worldRepository.update(session, worldsCollection);
+                    });
         });
     }
 
