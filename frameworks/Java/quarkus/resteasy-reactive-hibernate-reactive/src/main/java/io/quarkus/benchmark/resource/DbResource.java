@@ -52,11 +52,9 @@ public class DbResource {
     @Path("updates")
     public Uni<List<World>> updates(@QueryParam("queries") String queries) {
         return worldRepository.inSession(session -> {
-
             session.setFlushMode(FlushMode.MANUAL);
-
             return randomWorldsForWrite(session, parseQueryCount(queries))
-                    .flatMap(worldsCollection -> {
+                    .chain(worldsCollection -> {
                         final LocalRandom localRandom = Randomizer.current();
                         worldsCollection.forEach( w -> {
                             //Read the one field, as required by the following rule:
@@ -66,9 +64,9 @@ public class DbResource {
                             //the verification:
                             w.setRandomNumber(localRandom.getNextRandomExcluding(previousRead));
                         } );
-
                         return worldRepository.update(session, worldsCollection);
                     });
+
         });
     }
 

@@ -39,7 +39,7 @@ public class WorldRepository {
 
     public World loadSingleWorldById(Integer id) {
         try (StatelessSession ss = sf.openStatelessSession()) {
-            return (World) ss.get(World.class, id);
+            return ss.get(World.class, id);
         }
     }
 
