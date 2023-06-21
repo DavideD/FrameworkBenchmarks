@@ -8,9 +8,12 @@ import jakarta.inject.Singleton;
 import io.quarkus.benchmark.utils.LocalRandom;
 import io.quarkus.benchmark.utils.Randomizer;
 import org.hibernate.reactive.mutiny.Mutiny;
+import org.hibernate.reactive.util.impl.CompletionStages;
 
 import io.quarkus.benchmark.model.World;
 import io.smallrye.mutiny.Uni;
+
+import static org.hibernate.reactive.util.impl.CompletionStages.loop;
 
 @Singleton
 public class WorldRepository extends BaseRepository {
@@ -24,14 +27,13 @@ public class WorldRepository extends BaseRepository {
         return inSession(s -> {
             final LocalRandom random = Randomizer.current();
             int MAX = 10000;
-            Uni<Void> loop = Uni.createFrom().voidItem();
-            for (int i = 0; i < MAX; i++) {
+            // Avoid StackOverflowException when creating so many CompletionStage object
+            return Uni.createFrom().completionStage( loop( 0, MAX, i -> {
                 final World world = new World();
-                world.setId(i + 1);
-                world.setRandomNumber(random.getNextRandom());
-                loop = loop.call(() -> s.persist(world));
-            }
-            return loop.call( s::flush );
+                world.setId( i + 1 );
+                world.setRandomNumber( random.getNextRandom() );
+                return s.persist( world ).subscribeAsCompletionStage();
+            } ) ).call( s::flush );
         });
     }
 
