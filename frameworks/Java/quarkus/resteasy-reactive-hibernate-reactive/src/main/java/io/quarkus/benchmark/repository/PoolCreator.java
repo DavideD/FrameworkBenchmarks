@@ -12,26 +12,31 @@ import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Singleton
 public class PoolCreator implements PgPoolCreator {
 
     @ConfigProperty(name = "pg.pool.monitoring.enabled", defaultValue = "false")
-    boolean enabled;
+    boolean monitoringEnabled;
+
+    @ConfigProperty(name = "pg.pool.per-event-loop.enabled", defaultValue = "false")
+    boolean perEventLoopEnabled;
 
     @Override
     public Pool create(Input input) {
+        PgPool pgPool = perEventLoopEnabled ? new PerEventLoopPool(input) : build(input);
+        return monitoringEnabled ? new MonitoredPool(pgPool) : pgPool;
+    }
+
+    private PgPool build(Input input) {
         Vertx vertx = input.vertx();
         List<PgConnectOptions> databases = input.pgConnectOptionsList();
         PoolOptions poolOptions = input.poolOptions();
-        PgPool pgPool = (PgPool) PgBuilder
+        return (PgPool) PgBuilder
                 .pool()
-                .connectingTo(databases.stream().map(SqlConnectOptions.class::cast).collect(Collectors.toList()))
+                .connectingTo(databases.stream().map(SqlConnectOptions.class::cast).toList())
                 .with(poolOptions)
                 .using(vertx)
                 .build();
-        return enabled ? new MonitoredPool(pgPool) : pgPool;
     }
-
 }
