@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.MediaType;
 
 import io.quarkus.benchmark.utils.LocalRandom;
 import io.quarkus.benchmark.utils.Randomizer;
-import org.hibernate.FlushMode;
 import org.hibernate.reactive.mutiny.Mutiny;
 
 import io.quarkus.benchmark.model.World;
@@ -44,17 +43,14 @@ public class DbResource {
         return worldRepository.createData();
     }
 
-    private Uni<List<World>> randomWorldsForWrite(Mutiny.Session session, int count) {
-        return worldRepository.findManaged(session, count);
+    private Uni<List<World>> randomWorldsForWrite(Mutiny.StatelessSession session, int count) {
+        return worldRepository.findStateless(session, count);
     }
 
     @GET
     @Path("updates")
     public Uni<List<World>> updates(@QueryParam("queries") String queries) {
-        return worldRepository.inSession(session -> {
-
-            session.setFlushMode(FlushMode.MANUAL);
-
+        return worldRepository.inStatelessSession(session -> {
             Uni<List<World>> worlds = randomWorldsForWrite(session, parseQueryCount(queries));
             return worlds.flatMap(worldsCollection -> {
                 final LocalRandom localRandom = Randomizer.current();
@@ -66,7 +62,6 @@ public class DbResource {
                     //the verification:
                     w.setRandomNumber(localRandom.getNextRandomExcluding(previousRead));
                 } );
-
                 return worldRepository.update(session, worldsCollection);
             });
         });
