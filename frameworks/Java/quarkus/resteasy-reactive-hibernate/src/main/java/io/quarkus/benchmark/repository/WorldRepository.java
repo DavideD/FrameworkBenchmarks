@@ -1,17 +1,16 @@
 package io.quarkus.benchmark.repository;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import jakarta.transaction.Transactional;
-
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.quarkus.benchmark.model.World;
 import io.quarkus.benchmark.utils.LocalRandom;
 import io.quarkus.benchmark.utils.Randomizer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import jakarta.transaction.Transactional;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 
 @Singleton
 public class WorldRepository {
@@ -57,23 +56,22 @@ public class WorldRepository {
 
     public World[] updateNWorlds(final int count) {
         //We're again forced to use the "individual load" pattern by the rules:
-        final World[] list = loadNWorlds(count);
+        final World[] worlds = loadNWorlds(count);
+        final List<World> worldList = new ArrayList<>(worlds.length);
         final LocalRandom random = Randomizer.current();
-        try (Session s = sf.openSession()) {
-            s.setJdbcBatchSize(count);
-            s.setHibernateFlushMode(FlushMode.MANUAL);
-            for (World w : list) {
+        try (StatelessSession s = sf.openStatelessSession()) {
+            for (World w : worlds) {
                 //Read the one field, as required by the following rule:
                 // # vi. At least the randomNumber field must be read from the database result set.
                 final int previousRead = w.getRandomNumber();
                 //Update it, but make sure to exclude the current number as Hibernate optimisations would otherwise
                 // skip the write operation:
                 w.setRandomNumber(random.getNextRandomExcluding(previousRead));
-                s.update(w);
+                worldList.add(w);
             }
-            s.flush();
+            s.updateMultiple(worldList);
         }
-        return list;
+        return worlds;
     }
 
 }
