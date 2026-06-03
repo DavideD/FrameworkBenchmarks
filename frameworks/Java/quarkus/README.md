@@ -13,10 +13,14 @@ There are currently 2 implementations:
 
     ./tfb --mode verify --test quarkus quarkus-hibernate-reactive
 
+After the database container image is created, it can be started independently.
+
+    docker run -d --name tfb-database -e POSTGRES_DB=hello_world -e POSTGRES_PASSWORD=benchmarkdbpass -e POSTGRES_USER=benchmarkdbuser -p 5432:5432 techempower/postgres:latest
+
 ## Versions
 
-* [Java OpenJDK 17](http://openjdk.java.net/)
-* [Quarkus 3.1.0.CR1](https://quarkus.io)
+* [Java OpenJDK 25](http://openjdk.java.net/)
+* [Quarkus 3.36.0](https://quarkus.io)
 
 ## Test URLs
 
