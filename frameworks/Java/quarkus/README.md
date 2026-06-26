@@ -20,7 +20,7 @@ After the database container image is created, it can be started independently.
 ## Versions
 
 * [Java OpenJDK 25](http://openjdk.java.net/)
-* [Quarkus 3.36.0](https://quarkus.io)
+* [Quarkus 3.37.0](https://quarkus.io)
 
 ## Test URLs
 
