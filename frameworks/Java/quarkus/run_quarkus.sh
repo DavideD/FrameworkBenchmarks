@@ -11,7 +11,7 @@
 
 JAVA_OPTIONS="-server \
   -XX:+FlightRecorder \
-  -XX:StartFlightRecording=delay=15s,duration=60s,filename=/quarkus/run/trace.jfr,settings=profile \
+  -XX:StartFlightRecording=delay=15s,duration=60s,filename=/quarkus/trace.jfr,settings=profile \
   -XX:+UnlockDiagnosticVMOptions \
   -XX:+DebugNonSafepoints \
   -Dquarkus.http.limits.max-body-size= \
